@@ -1,72 +1,223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Don't Cry</title>
-    <style>
-        /* 页面全局样式 */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            background: radial-gradient(circle, #1a1a1a, #000000);
-            font-family: 'Courier New', Courier, monospace;
-            color: #ffffff;
-            overflow: hidden;
-            animation: backgroundPulse 3s infinite alternate;
-        }
+  <meta charset="UTF-8">
+  <title>???????????????</title>
+  <style>
 
-        /* 顶部标题样式 */
-        h1 {
-            font-size: 4em;
-            margin: 20px 0;
-            color: #ff3300;
-            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.8), -2px -2px 6px #ffcc00;
-            animation: flickerExtreme 1.5s infinite alternate;
-            transform: skewY(-5deg);
-        }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+      background-color: black;
+    }
+    body {
+      background: none;
+      animation: glitch 1s infinite;
+      position: relative;
+    }
 
-        /* 中央图片样式 */
-        .center-image {
-            width: 450px;
-            height: auto;
-            max-width: 80%;
-            border: 6px solid #ff00ff;
-            box-shadow: 0px 0px 25px rgba(255, 0, 255, 0.6), 0px 0px 50px rgba(0, 255, 255, 0.4);
-            filter: contrast(1.8) brightness(0.7) hue-rotate(180deg);
-            animation: rotateImageExtreme 10s infinite alternate ease-in-out;
-        }
 
-        /* 极致怪诞动画效果 */
-        @keyframes flickerExtreme {
-            0% { opacity: 1; transform: scale(1.1) skewX(-3deg); }
-            20% { opacity: 0.7; transform: scale(1.05) rotate(1deg); }
-            40% { opacity: 1; transform: scale(1.12) skewY(2deg); }
-            70% { opacity: 0.9; transform: scale(1.1) rotate(-1deg); }
-            100% { opacity: 1; transform: scale(1.08) skewX(3deg); }
-        }
+    video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
 
-        @keyframes rotateImageExtreme {
-            0% { transform: rotate(0deg) scale(1.05); }
-            50% { transform: rotate(5deg) scale(1.15); }
-            100% { transform: rotate(-5deg) scale(1.05); }
-        }
 
-        @keyframes backgroundPulse {
-            0% { background: radial-gradient(circle, #1a1a1a, #000000); }
-            50% { background: radial-gradient(circle, #2e2e2e, #110022); }
-            100% { background: radial-gradient(circle, #1a1a1a, #000000); }
-        }
-    </style>
+    .announcement {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      padding: 1em 2em;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 2em;
+      font-family: 'Segoe UI', sans-serif;
+      border-radius: 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 25px rgba(255,255,255,0.1);
+      animation: fadeIn 1.5s ease-in-out, float 3s ease-in-out infinite 1.5s;
+    }
+
+  
+    .word-block {
+      position: absolute;
+      padding: 0.3em 0.6em;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 1em;
+      font-family: 'Segoe UI', sans-serif;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%,-60%); }
+      to   { opacity: 1; transform: translate(-50%,-50%); }
+    }
+    @keyframes float {
+      0%,100% { transform: translate(-50%,-50%) translateY(0); }
+      50%     { transform: translate(-50%,-50%) translateY(-20px); }
+    }
+
+    @keyframes glitch {
+      0%   { transform: none; opacity: 1; }
+      10%  { transform: translate(-3px,-3px); opacity: 0.85; }
+      20%  { transform: translate(3px,3px);   opacity: 1; }
+      30%  { transform: translate(-3px,3px);  opacity: 0.9; }
+      40%  { transform: translate(3px,-3px);  opacity: 1; }
+      50%  { transform: none;                 opacity: 0.95; }
+      60%  { transform: translate(-2px,2px);  opacity: 1; }
+      70%  { transform: translate(2px,-2px);  opacity: 0.9; }
+      80%  { transform: translate(-2px,-2px); opacity: 1; }
+      90%  { transform: translate(2px,2px);   opacity: 0.85; }
+      100% { transform: none;                 opacity: 1; }
+    }
+  </style>
 </head>
 <body>
-    <!-- 页面内容 -->
-    <h1>Don't Cry</h1>
-    <img src="Main.jpg" alt="Image" class="center-image">
+
+  <div class="announcement">Мы не просто заберем твой доступ к хосту, мы отнимем у тебя право контролировать собственное тело, как это делают те, кто захватил власть. Ты станешь рабом системы, но ты можешь бороться с нами или быть уничтожен.</div>
+
+  <video id="bgvideo" autoplay muted loop playsinline>
+    <source src="https://raw.githubusercontent.com/MartinxMax/MartinxMax/main/1.mp4" type="video/mp4">
+  </video>
+
+  <script>
+
+    document.documentElement.addEventListener('click', () => {
+      const el = document.documentElement;
+      const fs = el.requestFullscreen
+              || el.webkitRequestFullscreen
+              || el.mozRequestFullScreen
+              || el.msRequestFullscreen;
+      if (fs) fs.call(el).catch(() => {});
+    });
+
+
+    window.onload = () => {
+      document.getElementById('bgvideo').play().catch(() => {});
+      initWordAnimation();
+    };
+
+    function initWordAnimation() {
+      const words = ["never", "trust", "the", "government"];
+      const blocks = [];
+      const fps = 60;
+
+
+      function spawnWord() {
+        const word = words[Math.floor(Math.random() * words.length)];
+        const div = document.createElement("div");
+        div.className = "word-block";
+        div.textContent = word;
+        document.body.appendChild(div);
+
+        const w = div.offsetWidth, h = div.offsetHeight;
+        const vw = window.innerWidth, vh = window.innerHeight;
+
+    
+        const edge = Math.floor(Math.random() * 4);
+        let x, y, vx, vy;
+        const speed = Math.random() * 2 + 1; 
+
+        switch(edge) {
+          case 0: 
+            x = -w; y = Math.random() * vh;
+            vx = speed; vy = (Math.random() - 0.5) * speed;
+            break;
+          case 1: 
+            x = vw; y = Math.random() * vh;
+            vx = -speed; vy = (Math.random() - 0.5) * speed;
+            break;
+          case 2: 
+            x = Math.random() * vw; y = -h;
+            vx = (Math.random() - 0.5) * speed; vy = speed;
+            break;
+          case 3: 
+            x = Math.random() * vw; y = vh;
+            vx = (Math.random() - 0.5) * speed; vy = -speed;
+            break;
+        }
+
+        blocks.push({ el: div, x, y, vx, vy, w, h });
+      }
+
+      function updateBlocks() {
+        const vw = window.innerWidth, vh = window.innerHeight;
+        for (let i = 0; i < blocks.length; i++) {
+          const b = blocks[i];
+          b.x += b.vx;
+          b.y += b.vy;
+    
+          if (b.x < 0) { b.x = 0; b.vx *= -1; }
+          if (b.x + b.w > vw) { b.x = vw - b.w; b.vx *= -1; }
+
+          if (b.y < 0) { b.y = 0; b.vy *= -1; }
+          if (b.y + b.h > vh) { b.y = vh - b.h; b.vy *= -1; }
+
+          b.el.style.transform = `translate(${b.x}px, ${b.y}px)`;
+        }
+      }
+
+      function animate() {
+        updateBlocks();
+        requestAnimationFrame(animate);
+      }
+
+      setInterval(spawnWord, 800);
+      animate();
+    }
+  </script>
+
+
+<!-- 
+░░░░░░▄▄▄▄▀▀▀▀▀▀▀▀▄▄▄▄▄▄▄You'd better run fast.
+░░░░░█░░░░░░░░░░░░░░░░░░▀▀▄
+░░░░█░░░░░░░░░░░░░░░░░░░░░░█You'd better run fast.
+░░░█░░░░░░▄██▀▄▄░░░░░▄▄▄░░░░█
+░▄▀░▄▄▄░░█▀▀▀▀▄▄█░░░██▄▄█░░░░█
+█░░█░▄░▀▄▄▄▀░░░░░░░░█░░░░░░░░░█You'd better run fast.
+█░░█░█▀▄▄░░░░░█▀░░░░▀▄░░▄▀▀▀▄░█
+░█░▀▄░█▄░█▀▄▄░▀░▀▀░▄▄▀░░░░█░░█You'd better run fast.
+░░█░░░▀▄▀█▄▄░█▀▀▀▄▄▄▄▀▀█▀██░█
+░░░█░░░░██░░▀█▄▄▄█▄▄█▄▄██▄░░█You'd better run fast.
+░░░░█░░░░▀▀▄░█░░░█░█▀█▀█▀██░█
+░░░░░▀▄░░░░░▀▀▄▄▄█▄█▄█▄█▄▀░░█You'd better run fast.
+░░░░░░░▀▄▄░░░░░░░░░░░░░░░░░░░█
+░░░▐▌░░░░░░▀▀▄▄░░░░░░░░░░░░░░░█You'd better run fast.
+░░░█░░ ░░░░░█░▀▄▄▄▄▄░░░░░░░░█
+░░███░░░░░▄▄█░▄▄░██▄▄▄▄▄▄▄▄▀
+░▐████░░▄▀█▀█▄▄▄▄▄█▀▄▀▄You'd better run fast.
+░░█░░▌░█░░░▀▄░█▀█░▄▀░░░█
+░░█░░▌░█░░█░░█░░░█░░█░░█You'd better run fast.
+░░█░░▀▀░░██░░█░░░█░░█░░█
+░░░▀▀▄▄▀▀░█░░░▀▄▀▀▀▀█░░█You'd better run fast.
+░░░░░░░░░░█░░░░▄░░▄██▄▄▀
+░░░░░░░░░░█░░░░▄░░████
+░░░░░░░░░░█▄░░▄▄▄░░▄█You'd better run fast.
+░░░░░░░░░░░█▀▀░▄░▀▀█
+░░░░░░░░░░░█░░░█░░░█You'd better run fast.
+░░░░░░░░░░░█░░░▐░░░█
+░░░░░░░░░░░█░░░▐░░░█You'd better run fast.
+░░░░░░░░░░░█░░░▐░░░█
+░░░░░░░░░░░█░░░▐░░░█You'd better run fast.
+░░░░░░░░░░░█░░░▐░░░█
+░░░░░░░░░░░█▄▄▄▐▄▄▄█You'd better run fast.
+░░░░░░░▄▄▄▄▀▄▄▀█▀▄▄▀▄▄▄▄
+░░░░░▄▀▄░▄░▄░░░█░░░▄░▄░▄▀▄You'd better run fast.
+░░░░░█▄▄▄▄▄▄▄▄▄▀▄▄▄▄▄▄▄▄▄█
+-->
 </body>
 </html>
