@@ -1,1 +1,279 @@
-1
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GitHub@Maptnh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg1: #0f1724;
+            --bg2: #081022;
+            --accent: #7c5cff;
+            --muted: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: #e9eef8;
+        }
+
+        .wrap {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 48px;
+        }
+
+        .panel {
+            width: 740px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .search {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .search input {
+            flex: 1;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            color: inherit;
+            font-size: 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 13px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.03);
+            cursor: pointer;
+        }
+
+        .chip.active {
+            background: linear-gradient(90deg, var(--accent), #3fb7ff);
+            color: #021020;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.03);
+            min-height: 92px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .card .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon {
+            font-size: 22px;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .tags {
+            margin-top: auto;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.03);
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="panel">
+            <div class="controls">
+                <div class="search">
+                    <input id="q" placeholder="Search for tool names or functions..." />
+                </div>
+                <div class="filters">
+                    <div class="chip active" data-filter="all">all</div>
+                    <div class="chip" data-filter="recon">recon</div>
+                    <div class="chip" data-filter="exploit">exploit</div>
+                    <div class="chip" data-filter="iot">IoT / OT</div>
+                    <div class="chip" data-filter="dev">dev</div>
+                </div>
+            </div>
+
+            <div class="grid" id="grid"></div>
+        </div>
+    </div>
+
+    <script>
+const TOOLS = [
+  { name: "Umbra", emoji: "🕶️", tags: ["exploit","recon"], brief: "A tool for detecting ROS 2 protocol vulnerabilities through remote malicious component injection.", turl: "Umbra" },
+  { name: "ATK-ROS2", emoji: "⚙️", tags: ["exploit","iot"], brief: "A penetration testing environment for ROS 2, simulating a production-like attack setup.", turl: "ATK-ROS2" },
+  { name: "ros2_auto_install", emoji: "🚀", tags: ["dev"], brief: "Quickly installs ROS 2 and VSCode within 5 minutes.", turl: "ros2_auto_install" },
+  { name: "tolapi", emoji: "📡", tags: ["dev"], brief: "A tool that generates file upload/download commands via API.", turl: "tolapi" },
+  { name: "EP-SPY", emoji: "🔍", tags: ["recon"], brief: "A wireless radio communication espionage tool based on GI6E encoding, for privacy protection.", turl: "EP-SPY" },
+  { name: "GI6E", emoji: "📡", tags: ["recon"], brief: "Pseudo-Morse code protocol used as a SHELLCODE loader in espionage activities.", turl: "GI6E" },
+  { name: "Blood-Cat", emoji: "📷", tags: ["recon"], brief: "A tool for collecting publicly exposed network cameras, supporting country and region selection.", turl: "Blood-Cat" },
+  { name: "matta4ck", emoji: "🧪", tags: ["exploit"], brief: "Remote code execution vulnerability tool for MATLAB <= 2025.", turl: "matta4ck" },
+  { name: "gitany", emoji: "🔎", tags: ["dev","recon"], brief: "Python tool to search latest GitHub projects of the day without login, supporting fuzzy search and visualization.", turl: "gitany" },
+  { name: "bmc", emoji: "📶", tags: ["iot"], brief: "Distributed IoT C2 architecture based on Bluetooth MAC detection nodes, interacting with S-Cluster.", turl: "bmc" },
+  { name: "smbd", emoji: "📁", tags: ["dev","recon"], brief: "Bash script automating file downloads from SMB/CIFS shared directories.", turl: "smbd" },
+  { name: "BOFZ", emoji: "💥", tags: ["exploit"], brief: "Basic buffer overflow scanner to detect vulnerabilities in executables.", turl: "BOFZ" },
+  { name: "DeepDarkSea", emoji: "🌊", tags: ["dev"], brief: "Flask-based LAN file sharing and real-time anonymous chat application.", turl: "DeepDarkSea" },
+  { name: "SKBD", emoji: "🔐", tags: ["exploit"], brief: "Linux SSH backdoor injection and persistence control tool.", turl: "SKBD" },
+  { name: "D-link", emoji: "🔗", tags: ["dev"], brief: "Lightweight Linux file synchronization tool written in C++.", turl: "D-link" },
+  { name: "FFbuster", emoji: "⚡", tags: ["recon"], brief: "Script based on ffuf for fast subdomain enumeration and automatic directory brute-forcing.", turl: "FFbuster" },
+  { name: "KTOR", emoji: "☃️", tags: ["recon","exploit"], brief: "Linux lateral movement tool for scanning internal HTTP services and fileless scanning.", turl: "KTOR" },
+  { name: "Chameleon", emoji: "🦎", tags: ["dev"], brief: "Cross-compiling tool to generate executables for multiple platforms in one operation.", turl: "Chameleon" },
+  { name: "Tyrant", emoji: "👹", tags: ["exploit"], brief: "SUID binary privilege escalation tool.", turl: "Tyrant" },
+  { name: "Control-Chaos", emoji: "👾", tags: ["ctf"], brief: "CTF challenge focusing on industrial control system vulnerabilities.", turl: "Control-Chaos" },
+  { name: "ROPS", emoji: "🐻", tags: ["exploit"], brief: "Script for automated ROP chain construction.", turl: "ROPS" },
+  { name: "S-Clustr", emoji: "💀", tags: ["malware"], brief: "Botnet (research/awareness use only).", turl: "S-Clustr" },
+  { name: "trp00f", emoji: "🐯", tags: ["exploit"], brief: "Automated privilege escalation tool.", turl: "trp00f" },
+  { name: "pany", emoji: "🧨", tags: ["exploit"], brief: "File read vulnerability exploitation tool.", turl: "pany" },
+  { name: "MSQP", emoji: "💉", tags: ["exploit"], brief: "MySQL privilege escalation tool.", turl: "MSQP" },
+  { name: "Nessus-M", emoji: "🩺", tags: ["recon"], brief: "Brute-force tool for Nessus scanner login interface.", turl: "Nessus-M" },
+  { name: "Inferno", emoji: "🎃", tags: ["iot"], brief: "EtherNet/IP OT network attack tool.", turl: "Inferno" },
+  { name: "Image To Ascii", emoji: "🔎", tags: ["dev"], brief: "Tool to convert website images into ASCII characters.", turl: "Image To Ascii" },
+  { name: "H4vdo", emoji: "🎭", tags: ["recon"], brief: "RTMP lock screen video tool to play payloads on the target.", turl: "H4vdo" },
+  { name: "Vulnhub-wp", emoji: "🤿", tags: ["ctf"], brief: "Vulnhub walkthrough tool for practice.", turl: "Vulnhub-wp" },
+  { name: "NAPLISTENER", emoji: "🧿", tags: ["recon"], brief: "APT-REF2924 backdoor scanner.", turl: "NAPLISTENER" },
+  { name: "CheatFetcher", emoji: "🥽", tags: ["dev"], brief: "High-speed downloader for game cheat tools.", turl: "CheatFetcher" },
+  { name: "Mo0n_V1.2", emoji: "🌙", tags: ["iot"], brief: "Zero-day exploit tool for MCGS industrial touchscreens.", turl: "Mo0n_V1.2" },
+  { name: "Simple_Door", emoji: "🚪", tags: ["iot"], brief: "Door access system using 51 MCU and Arduino.", turl: "Simple_Door" },
+  { name: "MChat-Gpt", emoji: "🗣️", tags: ["dev"], brief: "ChatGPT service connected to LAN.", turl: "MChat-Gpt" },
+  { name: "Caller", emoji: "📞", tags: ["malware"], brief: "Malware generator — research/awareness use only.", turl: "Caller" },
+  { name: "Anteater", emoji: "🐜", tags: ["recon"], brief: "Tool to collect sensitive directory information.", turl: "Anteater" },
+  { name: "Nets3e", emoji: "📷", tags: ["recon"], brief: "Client image upload to attacker for selective display.", turl: "Nets3e" },
+  { name: "Night_of_19", emoji: "🌙", tags: ["recon"], brief: "Bluetooth remote control via reverse shell.", turl: "Night_of_19" },
+  { name: "MAPI", emoji: "📚", tags: ["dev"], brief: "Comprehensive library for advanced API operations.", turl: "MAPI" },
+  { name: "MartSQLI", emoji: "🔍", tags: ["recon","exploit"], brief: "Automated SQLi testing tool.", turl: "MartSQLI" },
+  { name: "MCGS_DD", emoji: "⚙️", tags: ["iot"], brief: "Zero-day exploit research for NT kernel MCGS touchscreens.", turl: "MCGS_DD" },
+  { name: "MSSRF", emoji: "📂", tags: ["recon","exploit"], brief: "SSRF detection and demonstration tool.", turl: "MSSRF" },
+  { name: "GitPush", emoji: "📤", tags: ["dev"], brief: "UI tool for pushing code to GitHub.", turl: "GitPush" },
+  { name: "MCollider", emoji: "💥", tags: ["dev"], brief: "MD5 brute-force and fuzzy matching tool.", turl: "MCollider" },
+  { name: "MBAK", emoji: "📦", tags: ["recon"], brief: "Backup file enumeration tool.", turl: "MBAK" },
+  { name: "MRaider", emoji: "🔵", tags: ["recon"], brief: "Bluetooth HID attack tool.", turl: "MRaider" },
+  { name: "MSSTI", emoji: "🔐", tags: ["recon","exploit"], brief: "SSTI testing tool.", turl: "MSSTI" },
+  { name: "MAntagonist", emoji: "🔥", tags: ["exploit"], brief: "PHP file read bypass tool using encoded protocols.", turl: "MAntagonist" },
+  { name: "MDOG_GGB", emoji: "🐶", tags: ["recon"], brief: "XSS tool (UI and CLI versions).", turl: "MDOG_GGB" },
+  { name: "MPHP", emoji: "🔏", tags: ["exploit"], brief: "ThinkPHP vulnerability verification tool.", turl: "MPHP" },
+  { name: "MBlast", emoji: "💣", tags: ["recon"], brief: "Special character filtering test tool.", turl: "MBlast" },
+  { name: "Regulator", emoji: "🕹️", tags: ["dev"], brief: "Automated screen locking tool.", turl: "Regulator" },
+  { name: "Mole", emoji: "🔒", tags: ["exploit"], brief: "LD_PRELOAD hijacking and command execution tool.", turl: "Mole" },
+  { name: "MXXE", emoji: "🔓", tags: ["exploit"], brief: "XXE vulnerability testing tool.", turl: "MXXE" },
+  { name: "Mpol", emoji: "⏳", tags: ["iot"], brief: "C4 bomb demo using AT89C51 MCU.", turl: "Mpol" },
+  { name: "MTO", emoji: "🎮", tags: ["iot"], brief: "STM32 remote stepper motor control demo.", turl: "MTO" },
+  { name: "MDPG", emoji: "🌐", tags: ["recon"], brief: "DHCP flood/starvation demonstration.", turl: "MDPG" },
+  { name: "MDPG_U", emoji: "📋", tags: ["recon"], brief: "Automated DHCP flood GUI demo.", turl: "MDPG_U" },
+  { name: "Web-crawlers-get-web-links", emoji: "🕸️", tags: ["dev","recon"], brief: "Web link crawler demonstration tool.", turl: "Web-crawlers-get-web-links" },
+  { name: "Martin_Video_Hacker-V1.0", emoji: "📸", tags: ["recon"], brief: "Hotkey triggered screenshot tool.", turl: "Martin_Video_Hacker-V1.0" }
+];
+        const grid = document.getElementById('grid');
+        const q = document.getElementById('q');
+        const chips = Array.from(document.querySelectorAll('.chip'));
+        let activeFilter = 'all';
+
+        function render(list) {
+                grid.innerHTML = '';
+                list.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <div class="row">
+                            <div class="icon">${t.emoji}</div>
+                            <div>
+                                <div class="name">${t.name}</div>
+                                <div class="muted">${t.brief}</div>
+                            </div>
+                        </div>
+                        <div class="tags">${t.tags.map(x => `<div class="tag">${x}</div>`).join('')}</div>
+                    `;
+                    div.addEventListener('click', () => {
+                        window.open(`https://github.com/MartinxMax/${t.turl}`, "_blank");
+                    });
+
+                    grid.appendChild(div);
+                });
+            }
+
+        function applyFilter() {
+            const term = q.value.trim().toLowerCase();
+            const list = TOOLS.filter(t => {
+                if (activeFilter !== 'all' && !t.tags.includes(activeFilter)) return false;
+                if (term && !(t.name.toLowerCase().includes(term) || t.brief.toLowerCase().includes(term))) return false;
+                return true;
+            });
+            render(list);
+        }
+
+        chips.forEach(c => c.addEventListener('click', () => {
+            chips.forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            activeFilter = c.dataset.filter;
+            applyFilter();
+        }));
+
+        q.addEventListener('input', applyFilter);
+        render(TOOLS);
+    </script>
+</body>
+</html>
