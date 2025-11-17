@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ByteGlyph</title>
+    <style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 20px;
+        background-color: #f0f0f0;
+        color: #333;
+    }
+    .controls {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    #textInput {
+        padding: 10px;
+        font-size: 16px;
+        width: 300px;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    #generateBtn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #ascii-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .ascii-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .font-name {
+        font-size: 18px;
+        color: #e74c3c;
+        margin: 0 0 15px 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        font-weight: bold;
+    }
+    .ascii-art {
+        font-family: 'Courier New', Courier, monospace;
+        white-space: pre;
+        overflow-x: auto;
+        font-size: 14px;
+        line-height: 1.2;
+        color: #2c3e50;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 4px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .error-message {
+        color: #e74c3c;
+        background-color: #fef0f0;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        border-left: 4px solid #e74c3c;
+    }
+    .loading {
+        text-align: center;
+        font-size: 1.2em;
+        color: #7f8c8d;
+        grid-column: 1 / -1;
+        padding: 50px 0;
+    }
+    #failed-fonts-container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 15px;
+        background-color: #fef9f9;  
+        border: 1px solid #f0d0d0;
+        border-radius: 8px;
+        display: none;  
+    }
+    #failed-fonts-container h3 {
+        color: #c0392b;
+        margin-top: 0;
+        border-bottom: 1px solid #f0d0d0;
+        padding-bottom: 10px;
+    }
+    #failed-fonts-list {
+        list-style-type: none;  
+        padding-left: 0;
+    }
+    #failed-fonts-list li {
+        padding: 8px 12px;
+        border-bottom: 1px solid #faf0f0;
+        color: #555;
+    }
+    #failed-fonts-list li:last-child {
+        border-bottom: none;
+    }
+    #failed-fonts-list li:before {
+        content: "❌ ";  
+        color: #e74c3c;
+    }
+    </style>
+</head>
+<body>
 
+    <div class="controls">
+        <input type="text" id="textInput" value="ASCII" placeholder="Enter text...">
+        <button id="generateBtn" disabled>Generate</button>
+    </div>
+
+    <div id="failed-fonts-container">
+        <h3>Failed Fonts Summary</h3>
+        <ul id="failed-fonts-list"></ul>
+    </div>
+
+    <div id="ascii-container" class="loading">
+        <p>Loading fonts, please wait...</p>
+    </div>
+
+    <script src="fontList.js"></script>
+    <script src="figlet.min.js"></script>
+    <script>
+        const container = document.getElementById('ascii-container');
+        const textInput = document.getElementById('textInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const allFonts = []; 
+
+        async function init() {
+            container.innerHTML = '<p>Loading...</p>';
+            
+            for (const filePath of fontFiles) {
+                const fontName = filePath.split('/').pop().replace('.flf', '');
+                try {
+                    const response = await fetch(filePath);
+                    if (!response.ok) throw new Error(`Load fail (HTTP ${response.status})`);
+                    const fontData = await response.text();
+                    figlet.parseFont(fontName, fontData);
+                    allFonts.push({ name: fontName, path: filePath, isValid: true });
+                } catch (error) {
+                    allFonts.push({ name: fontName, path: filePath, isValid: false, error: error.message });
+                }
+            }
+
+            const failedFonts = allFonts.filter(font => !font.isValid);
+            const failedFontsContainer = document.getElementById('failed-fonts-container');
+            const failedFontsList = document.getElementById('failed-fonts-list');
+
+            if (failedFonts.length > 0) {
+                failedFontsContainer.style.display = 'block';
+                failedFontsList.innerHTML = '';
+                failedFonts.forEach(font => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${font.name}.flf - res: ${font.error}`;
+                    failedFontsList.appendChild(listItem);
+                });
+            }
+
+            container.innerHTML = '';
+            generateBtn.disabled = false;
+            renderAllArt(textInput.value);
+        }
+
+        function renderAllArt(text) {
+            if (!text.trim()) {
+                container.innerHTML = '<p style="text-align:center;">Text</p>';
+                return;
+            }
+            container.innerHTML = '';
+            allFonts.forEach(font => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'ascii-card';
+                cardDiv.innerHTML = `<h3 class="font-name">${font.name}.flf</h3>`;
+                if (font.isValid) {
+                    try {
+                        const asciiArt = figlet.textSync(text, { font: font.name });
+                        cardDiv.innerHTML += `<pre class="ascii-art">${asciiArt}</pre>`;
+                    } catch (error) {
+                        cardDiv.innerHTML += `<div class="error-message">Render failed: ${error.message}</div>`;
+                        console.error(`Error rendering font ${font.name}:`, error);
+                    }
+                } else {
+                    cardDiv.innerHTML += `<div class="error-message">❌ Font unavailable\nReason: ${font.error}</div>`;
+                }
+                container.appendChild(cardDiv);
+            });
+        }
+
+        generateBtn.addEventListener('click', () => renderAllArt(textInput.value));
+        textInput.addEventListener('keypress', (e) => e.key === 'Enter' && renderAllArt(textInput.value));
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
